@@ -1,0 +1,307 @@
+{
+  "_comment": "Find Your Team page data. Edit with admin.html or directly here. Photos are filenames in the images/ folder of this repo.",
+  "placeholder": "placeholder.jpg",
+  "teams": [
+    {
+      "slug": "sales-managers",
+      "title": "Sales Managers",
+      "people": [
+        {
+          "name": "Misty Singleton",
+          "photo": "misty-singleton.jpg"
+        },
+        {
+          "name": "Matthew Moring",
+          "photo": "matt-morning.png"
+        },
+        {
+          "name": "Sarah Baker",
+          "photo": "sarah-baker.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "territory-sales",
+      "title": "Territory Sales Team",
+      "people": [
+        {
+          "name": "Toni Butler",
+          "photo": "toni-butler.jpg",
+          "region": "Northeast"
+        },
+        {
+          "name": "Devin Jarrett",
+          "photo": "devin-jarrett.jpg",
+          "region": "Northeast"
+        },
+        {
+          "name": "Ashli Darling",
+          "photo": "ashli-darling.jpg",
+          "region": "Southeast"
+        },
+        {
+          "name": "Kim Thorn-Irvin",
+          "photo": "kim-thorn-irvin.jpg",
+          "region": "Southeast"
+        },
+        {
+          "name": "Ellen Henderson",
+          "photo": "ellen-henderson.jpg",
+          "region": "Southeast"
+        },
+        {
+          "name": "Clint Stubblefield",
+          "photo": "clint-stubblefield.jpg",
+          "region": "Central"
+        },
+        {
+          "name": "Cody Hill",
+          "photo": "cody-hill.jpg",
+          "region": "Central"
+        },
+        {
+          "name": "Nick Watts",
+          "photo": "nick-watts.jpg",
+          "region": "West"
+        },
+        {
+          "name": "Nic Ellsworth",
+          "photo": "nic-ellsworth.jpg",
+          "region": "West"
+        },
+        {
+          "name": "Will McMurphy",
+          "photo": "will-mcmurphy.jpg",
+          "region": "West"
+        },
+        {
+          "name": "Open Position",
+          "photo": "open-position.jpg",
+          "region": "West"
+        },
+        {
+          "name": "Patrick Hattaway",
+          "photo": "patrick-hattaway.jpg",
+          "region": "South Central"
+        },
+        {
+          "name": "Mary Stout",
+          "photo": "mary-stout.jpg",
+          "region": "South Central"
+        },
+        {
+          "name": "Chandra Robinson",
+          "photo": "chandra-robinson.jpg",
+          "region": "South Central"
+        },
+        {
+          "name": "Jessica Sadler",
+          "photo": "jessica-sadler.jpg",
+          "region": "Midwest"
+        },
+        {
+          "name": "Angela Price",
+          "photo": "angela-price.jpg",
+          "region": "Midwest"
+        }
+      ]
+    },
+    {
+      "slug": "market-developer-east",
+      "title": "Market Developer Team - East",
+      "people": [
+        {
+          "name": "Kris Hobbins",
+          "photo": "kris-hobbins.png"
+        },
+        {
+          "name": "Jim Boyd",
+          "photo": "jim-boyd.jpg"
+        },
+        {
+          "name": "Griffin Wenger",
+          "photo": "griffin-wenger.jpg"
+        },
+        {
+          "name": "Patrick Hale",
+          "photo": "patrick-hale.jpg"
+        },
+        {
+          "name": "Bryan Manke",
+          "photo": "bryan-manke.jpg"
+        },
+        {
+          "name": "Shane Oliver",
+          "photo": "shane-oliver.jpg"
+        },
+        {
+          "name": "Hunter Johnston",
+          "photo": "hunter-johnston.jpg"
+        },
+        {
+          "name": "Derric Rankins",
+          "photo": "derrik-rankins.jpg"
+        },
+        {
+          "name": "Patrick Woodring",
+          "photo": "patrick-woodring.jpg"
+        },
+        {
+          "name": "Brian Fillous",
+          "photo": "brian-fillous.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "market-developer-west",
+      "title": "Market Developer Team - West",
+      "people": [
+        {
+          "name": "Timothy Algoe",
+          "photo": "timothy-algoe.jpg"
+        },
+        {
+          "name": "Peyton McBurnett",
+          "photo": "peyton-mcburnett.jpg"
+        },
+        {
+          "name": "Melissa Busch",
+          "photo": "melissa-busch.jpg"
+        },
+        {
+          "name": "Sean Russell",
+          "photo": "sean-russell.jpg"
+        },
+        {
+          "name": "Kit Cranford",
+          "photo": "kit-cranford.png"
+        },
+        {
+          "name": "Marcus Tejeda",
+          "photo": "marcus-tejeda.png"
+        },
+        {
+          "name": "Brian Doss",
+          "photo": "brian-doss.png"
+        },
+        {
+          "name": "Timothy McKenzie",
+          "photo": "timothy-mckenzie.jpg"
+        },
+        {
+          "name": "Kellie Martin",
+          "photo": "kellie-martin.jpg"
+        },
+        {
+          "name": "Joey Ribbens",
+          "photo": "joey-ribbens.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "project-managers",
+      "title": "Project Manager Team",
+      "people": [
+        {
+          "name": "Nick Framel",
+          "photo": "nick-framel.jpg",
+          "region": "Team Singleton"
+        },
+        {
+          "name": "Nicholas Phillips",
+          "photo": "nicholas-phillips.jpg",
+          "region": "Team Singleton"
+        },
+        {
+          "name": "Dustin Mullinax",
+          "photo": "dustin-mullinax.jpg",
+          "region": "Team Singleton"
+        },
+        {
+          "name": "Bobby Kelley",
+          "photo": "bobby-kelley.png",
+          "region": "Team Moring"
+        },
+        {
+          "name": "Jason Goins",
+          "photo": "jason-goins.jpg",
+          "region": "Team Moring"
+        },
+        {
+          "name": "Matthew James",
+          "photo": "matt-james.png",
+          "region": "Team Moring"
+        },
+        {
+          "name": "Tim Smith",
+          "photo": "tim-smith.png",
+          "region": "Team Baker"
+        },
+        {
+          "name": "Matt Bean",
+          "photo": "matt-bean.jpg",
+          "region": "Team Baker"
+        },
+        {
+          "name": "Seth Miller",
+          "photo": "seth-miller.jpg",
+          "region": "Team Baker"
+        }
+      ]
+    },
+    {
+      "slug": "security",
+      "title": "Ameristar Security Products",
+      "people": [
+        {
+          "name": "Joey Ribbens",
+          "photo": "joey-ribbens.jpg"
+        },
+        {
+          "name": "Zack Wade",
+          "photo": "zack-wade.jpg"
+        },
+        {
+          "name": "Gage Brooks",
+          "photo": "gage-brooks.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "dcm",
+      "title": "Distribution Channel Managers",
+      "people": [
+        {
+          "name": "Bryan Weygand",
+          "photo": "bryan-weygand.jpg",
+          "region": "West"
+        },
+        {
+          "name": "David Phornsutiphaijit",
+          "photo": "david-phornsutiphaijit.jpg",
+          "region": "Central"
+        },
+        {
+          "name": "Trevor McCauley",
+          "photo": "trevor-mccauley.jpg",
+          "region": "Midwest"
+        },
+        {
+          "name": "Jared Hood",
+          "photo": "jared-hood.jpg",
+          "region": "South Central"
+        },
+        {
+          "name": "Lance McGee",
+          "photo": "lance-mcgee.jpg",
+          "region": "Northeast"
+        },
+        {
+          "name": "Jose Rodriguez",
+          "photo": "jose-rodriguez.jpg",
+          "region": "Southeast"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Team - Ameristar</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Hide the iframe's internal scrollbar (scrolling still works via wheel/touch) */
+  html { scrollbar-width: none; -ms-overflow-style: none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #ffffff; color: #1a1a1a; padding: 0; max-width: 1400px; margin: 0 auto; line-height: 1.4; }
+  .team-section { margin-bottom: 40px; }
+  .team-section:last-child { margin-bottom: 0; }
+  .team-section h2 { font-size: 26px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #0033a0; }
+  .team-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 14px 8px; }
+  .headshot-card { text-align: center; }
+  .headshot-img-wrapper { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: #e8e8e8; margin-bottom: 10px; }
+  .headshot-img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
+  .headshot-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; line-height: 1.25; min-height: 2.5em; display: flex; align-items: flex-start; justify-content: center; text-align: center; overflow-wrap: break-word; word-break: break-word; hyphens: auto; }
+  .headshot-region { font-size: 12px; color: #666; font-weight: 400; }
+  @media (max-width: 600px) { .team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .team-section h2 { font-size: 18px; } .headshot-name { font-size: 12px; } }
+</style>
+</head>
+<body>
+  <div id="teams"></div>
+
+<script>
+// =====================================================================
+// DATA
+// Rosters live in data/team.json. Edit them with admin.html (same repo)
+// or directly on GitHub. Nothing in this file changes for a personnel
+// update. Photos are filenames in images/; a missing file shows the
+// gray Ameristar placeholder card.
+// =====================================================================
+const IMG_BASE = "images/";
+let FILLER = IMG_BASE + "placeholder.jpg";
+
+fetch("data/team.json?v=" + Date.now(), { cache: "no-store" })
+  .then(r => { if (!r.ok) throw new Error("team.json " + r.status); return r.json(); })
+  .then(d => { FILLER = IMG_BASE + (d.placeholder || "placeholder.jpg"); render(d.teams || []); })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("teams").innerHTML =
+      '<p style="padding:16px;color:#900">Could not load data/team.json</p>';
+  });
+
+// =====================================================================
+// RENDER
+// ?team=<slug> shows a single section (for per-section AEM embeds);
+// no parameter shows everything.
+// =====================================================================
+function render(teams) {
+  const param = new URLSearchParams(location.search).get("team");
+  const shown = param ? teams.filter(t => t.slug === param) : teams;
+  const root = document.getElementById("teams");
+
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+
+  root.innerHTML = shown.map(t => {
+    const cards = t.people.map(({ name, photo, region }) => {
+      const img = photo || "placeholder.jpg";
+      const url = /^https?:/.test(img) ? img : IMG_BASE + img;
+      const reg = region ? `<div class="headshot-region">${esc(region)}</div>` : "";
+      return `<div class="headshot-card">
+        <div class="headshot-img-wrapper"><img class="headshot-img" src="${esc(url)}" alt="${esc(name)}" loading="lazy" onerror="this.onerror=null;this.src='${FILLER}'"></div>
+        <div class="headshot-name">${esc(name)}</div>${reg}
+      </div>`;
+    }).join("\n");
+    return `<section class="team-section" id="${t.slug}">
+      <h2>${esc(t.title)}</h2>
+      <div class="team-grid">
+${cards}
+      </div>
+    </section>`;
+  }).join("\n");
+}
+
+// =====================================================================
+// IFRAME AUTO-RESIZE
+// Reports this page's rendered height to the parent (AEM) so the iframe
+// can size itself. Fires on load, on any layout change (images arriving,
+// fonts, viewport/breakpoint changes), throttled via rAF.
+// =====================================================================
+(function () {
+  if (window.self === window.top) return; // not in an iframe, nothing to do
+
+  let queued = false;
+  function postHeight() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+      window.parent.postMessage({ type: "ameristar-team-height", height: h }, "*");
+    });
+  }
+
+  new ResizeObserver(postHeight).observe(document.documentElement);
+  window.addEventListener("load", postHeight);
+  window.addEventListener("resize", postHeight);
+  postHeight();
+})();
+</script>
+</body>
+</html>

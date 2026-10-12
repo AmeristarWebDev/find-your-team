@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Ameristar Team Admin</title>
+<style>
+  :root {
+    --blue: #0033a0; --blue-dk: #002270; --ink: #1a1a1a; --mute: #666; --line: #dcdfe4;
+    --bg: #f4f5f7; --card: #fff; --ok: #1b7f3b; --warn: #b26a00; --err: #b3261e; --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background: var(--bg); font-size: 14px; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 6px 12px; color: var(--ink); }
+  button:hover { border-color: #b9bec7; background: #fafbfc; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+  button.primary:hover { background: var(--blue-dk); }
+  button.danger { color: var(--err); }
+  button.sm { padding: 3px 8px; font-size: 12px; }
+  button.icon { padding: 2px 7px; font-size: 13px; line-height: 1.2; }
+  input[type=text], input[type=password], input[type=email], select, textarea { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: #fff; width: 100%; }
+  input[type=color] { width: 36px; height: 30px; padding: 0 2px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  label { display: block; font-size: 12px; color: var(--mute); margin-bottom: 4px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+  .field { margin-bottom: 14px; }
+  .hint { color: var(--mute); font-size: 12px; margin-top: 4px; }
+
+  header { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+  .bar { max-width: 1400px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 14px; }
+  .bar h1 { font-size: 16px; margin: 0; font-weight: 700; color: var(--blue); }
+  .bar h1 span { color: var(--mute); font-weight: 400; }
+  .spacer { flex: 1; }
+  .chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: #eef1f6; color: var(--mute); }
+  .chip.ok { background: #e6f4ea; color: var(--ok); }
+  .chip.err { background: #fbe9e7; color: var(--err); }
+  .chip.warn { background: #fff4e0; color: var(--warn); }
+  .badge { background: var(--err); color: #fff; border-radius: 999px; padding: 1px 7px; font-size: 11px; margin-left: 6px; }
+
+  nav.tabs { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 2px; }
+  nav.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 8px 14px; color: var(--mute); font-weight: 600; }
+  nav.tabs button.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .row { display: flex; gap: 16px; align-items: flex-start; }
+  .grow { flex: 1; min-width: 0; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h3 { font-size: 14px; margin: 0 0 10px; }
+  .subtabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .subtabs button { border-radius: 999px; }
+  .subtabs button.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* team page editor */
+  .sections { width: 260px; flex: none; }
+  .sections ul { list-style: none; margin: 0; padding: 0; }
+  .sections li { display: flex; align-items: center; gap: 6px; padding: 7px 8px; border-radius: 6px; cursor: pointer; }
+  .sections li:hover { background: #f0f3f9; }
+  .sections li.active { background: #e8eefb; color: var(--blue); font-weight: 600; }
+  .sections li .cnt { color: var(--mute); font-size: 12px; font-weight: 400; }
+  .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .person { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; display: grid; grid-template-columns: 64px 1fr; gap: 10px; background: #fff; }
+  .person.missing { border-color: #f0c36d; background: #fffaf0; }
+  .thumb { width: 64px; height: 80px; background: #e8e8e8; border-radius: 4px; overflow: hidden; position: relative; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
+  .thumb .nophoto { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--mute); text-align: center; padding: 4px; }
+  .person input { margin-bottom: 6px; }
+  .person .actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+
+  /* tag editor */
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; border: 1px solid var(--line); border-radius: 6px; padding: 4px; background: #fff; min-height: 34px; }
+  .tags .tag { background: #e8eefb; color: var(--blue); border-radius: 4px; padding: 2px 6px; font-size: 12px; display: inline-flex; gap: 4px; align-items: center; }
+  .tags .tag b { cursor: pointer; font-weight: 700; }
+  .tags .tag.unknown { background: #fff4e0; color: var(--warn); }
+  .tags input { border: 0; outline: 0; flex: 1; min-width: 120px; padding: 3px; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 12px; color: var(--mute); text-transform: uppercase; letter-spacing: .02em; position: sticky; top: 0; background: #fff; }
+  td select, td input { width: 100%; }
+  tr.territory-head td { background: #f0f3f9; font-weight: 700; }
+
+  .terr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; }
+  .terr { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: #fff; border-top: 6px solid #ccc; }
+
+  #log { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; white-space: pre-wrap; background: #1e2430; color: #d6dbe5; border-radius: var(--radius); padding: 12px; max-height: 220px; overflow: auto; display: none; margin-top: 16px; }
+  #log.show { display: block; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 10px; padding: 20px; width: 420px; max-width: 92vw; }
+  .modal canvas { width: 100%; border-radius: 6px; background: #eee; }
+  .ok { color: var(--ok); } .err { color: var(--err); } .warn { color: var(--warn); }
+  code { background: #eef1f6; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .help ol { padding-left: 20px; } .help li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>Ameristar Team Admin <span>— Find Your Team &amp; Territory Map</span></h1>
+    <span id="connChip" class="chip">Not connected</span>
+    <div class="spacer"></div>
+    <a id="liveTeam" href="#" target="_blank" class="chip" style="text-decoration:none">View team page ↗</a>
+    <a id="liveMap" href="#" target="_blank" class="chip" style="text-decoration:none">View map ↗</a>
+    <button id="btnReload" title="Discard unsaved changes and reload from GitHub">Reload</button>
+    <button id="btnSave" class="primary" disabled>Save to GitHub <span id="pendingBadge" class="badge" style="display:none">0</span></button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="team" class="active">Team Page</button>
+    <button data-tab="map">Territory Map</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ================= TEAM PAGE ================= -->
+  <section id="view-team" class="view active">
+    <div class="row">
+      <div class="card sections">
+        <h2>Sections</h2>
+        <ul id="sectionList"></ul>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <button class="sm" id="btnAddSection">+ Section</button>
+          <button class="sm" id="btnSecUp">↑</button>
+          <button class="sm" id="btnSecDown">↓</button>
+          <button class="sm danger" id="btnDelSection">Delete</button>
+        </div>
+      </div>
+      <div class="card grow">
+        <div class="toolbar">
+          <input type="text" id="sectionTitle" placeholder="Section title" style="max-width:360px">
+          <div class="spacer"></div>
+          <button id="btnAddPerson" class="primary">+ Add person</button>
+        </div>
+        <div id="peopleGrid" class="people"></div>
+        <p class="hint" style="margin-top:12px">Headshots are cropped to 457×687 (2:3 portrait) automatically when you upload. Orange cards are people whose photo file doesn't exist yet — they show the placeholder on the live page.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TERRITORY MAP ================= -->
+  <section id="view-map" class="view">
+    <div class="subtabs">
+      <button data-sub="states" class="active">States</button>
+      <button data-sub="territories">Territories</button>
+      <button data-sub="mpeople">People &amp; Photos</button>
+    </div>
+
+    <div id="sub-states" class="card">
+      <div class="toolbar">
+        <input type="text" id="stateFilter" placeholder="Filter states…" style="max-width:260px">
+        <span class="hint">Market Developers: type a name and press Enter. Leave empty to use the territory's full MD roster.</span>
+      </div>
+      <div style="max-height:70vh;overflow:auto">
+        <table id="statesTable">
+          <thead><tr><th style="width:190px">State</th><th style="width:170px">Territory</th><th>Market Developer(s)</th><th style="width:200px">Project Manager</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="sub-territories" class="card" style="display:none">
+      <div class="toolbar">
+        <div class="field grow" style="max-width:260px;margin:0"><label>Phone (all popups)</label><input type="text" id="mapPhone"></div>
+        <span class="hint">Each territory's roster, DCM, Territory Sales list and email shown in the popup.</span>
+      </div>
+      <div id="terrGrid" class="terr-grid"></div>
+    </div>
+
+    <div id="sub-mpeople" class="card" style="display:none">
+      <div class="toolbar">
+        <span class="hint">Everyone the map can show. Renaming a person updates every state and territory that references them.</span>
+        <div class="spacer"></div>
+        <button id="btnAddMapPerson" class="primary">+ Add person</button>
+      </div>
+      <div id="mapPeople" class="people"></div>
+      <div id="orphans" class="hint" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="view-settings" class="view">
+    <div class="row">
+      <div class="card" style="width:460px;flex:none">
+        <h2>GitHub connection</h2>
+        <div class="field"><label>Personal access token</label><input type="password" id="token" placeholder="github_pat_…" autocomplete="off"><div class="hint">Stored only in this browser. Never sent anywhere except api.github.com.</div></div>
+        <div class="field"><label>Owner</label><input type="text" id="owner"></div>
+        <div class="row">
+          <div class="field grow"><label>Team page repo</label><input type="text" id="teamRepo"></div>
+          <div class="field grow"><label>Map repo</label><input type="text" id="mapRepo"></div>
+        </div>
+        <div class="field"><label>Branch</label><input type="text" id="branch"></div>
+        <div class="field"><label style="text-transform:none;display:flex;gap:8px;align-items:center"><input type="checkbox" id="remember" style="width:auto"> Remember token on this device</label></div>
+        <div class="field"><label style="text-transform:none;display:flex;gap:8px;align-items:center"><input type="checkbox" id="syncPhotos" checked style="width:auto"> Keep headshots in sync — every upload goes to both repos</label></div>
+        <button id="btnConnect" class="primary">Connect &amp; load</button>
+        <span id="connMsg" class="hint" style="margin-left:8px"></span>
+      </div>
+      <div class="card grow help">
+        <h2>Setup (one time)</h2>
+        <ol>
+          <li>In GitHub: profile photo → <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+          <li>Resource owner: <b>AmeristarWebDev</b>. Expiration: up to a year. Repository access: <b>Only select repositories</b> → pick <code>find-your-team</code> and <code>territorymap</code>.</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Nothing else is needed.</li>
+          <li>Generate, copy the token (starts with <code>github_pat_</code>), paste it here, tick Remember, click Connect.</li>
+        </ol>
+        <h2 style="margin-top:18px">How saving works</h2>
+        <p>Every change you make is held in this page until you click <b>Save to GitHub</b>. Saving commits the data files (and any new headshots) directly to the repos. GitHub Pages republishes in about a minute; the AEM-embedded pages pick it up after the usual cache window.</p>
+        <p>Nothing here edits the page code — only <code>data/team.json</code>, <code>data/map.json</code> and the image folders — so there's nothing to break. If anything ever goes wrong, every save is a normal commit you can revert on GitHub.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="log"></div>
+</main>
+
+<!-- crop preview modal -->
+<div id="cropOverlay" class="overlay">
+  <div class="modal">
+    <h3>Headshot preview (457×687)</h3>
+    <canvas id="cropCanvas" width="457" height="687"></canvas>
+    <div class="hint" style="margin:8px 0">Cropped to the house portrait size. The vertical position favors the top so heads keep headroom. File will be saved as <code id="cropName"></code>.</div>
+    <div class="field"><label>Vertical position</label><input type="range" id="cropY" min="0" max="100" value="15" style="width:100%"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button id="cropCancel">Cancel</button><button id="cropOk" class="primary">Use this photo</button></div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+<script>
+// =====================================================================
+// STATE
+// =====================================================================
+const S = {
+  token: "", owner: "AmeristarWebDev", teamRepo: "find-your-team", mapRepo: "territorymap", branch: "main",
+  sync: true, connected: false,
+  team: { data: null, sha: null, dirty: false },
+  map:  { data: null, sha: null, dirty: false },
+  teamFiles: new Map(),   // images/ listing: name -> sha
+  mapFiles:  new Map(),   // photos/ listing: name -> sha
+  uploads: [],            // { repo, path, b64, preview }
+  previews: {},           // filename -> dataURL (freshly uploaded, not yet live)
+  ui: { tab: "team", sub: "states", section: 0 }
+};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const slug = (name) => name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const pagesBase = (repo) => `https://${S.owner.toLowerCase()}.github.io/${repo}/`;
+
+// =====================================================================
+// SETTINGS PERSISTENCE
+// =====================================================================
+function loadSettings() {
+  const saved = JSON.parse(localStorage.getItem("ameristar-admin") || sessionStorage.getItem("ameristar-admin") || "{}");
+  Object.assign(S, { owner: saved.owner || S.owner, teamRepo: saved.teamRepo || S.teamRepo, mapRepo: saved.mapRepo || S.mapRepo, branch: saved.branch || S.branch, token: saved.token || "", sync: saved.sync !== false });
+  $("token").value = S.token; $("owner").value = S.owner; $("teamRepo").value = S.teamRepo; $("mapRepo").value = S.mapRepo; $("branch").value = S.branch;
+  $("remember").checked = !!localStorage.getItem("ameristar-admin"); $("syncPhotos").checked = S.sync;
+  $("liveTeam").href = pagesBase(S.teamRepo); $("liveMap").href = pagesBase(S.mapRepo);
+}
+function saveSettings() {
+  S.token = $("token").value.trim(); S.owner = $("owner").value.trim(); S.teamRepo = $("teamRepo").value.trim(); S.mapRepo = $("mapRepo").value.trim(); S.branch = $("branch").value.trim() || "main"; S.sync = $("syncPhotos").checked;
+  const blob = JSON.stringify({ token: S.token, owner: S.owner, teamRepo: S.teamRepo, mapRepo: S.mapRepo, branch: S.branch, sync: S.sync });
+  localStorage.removeItem("ameristar-admin"); sessionStorage.removeItem("ameristar-admin");
+  ($("remember").checked ? localStorage : sessionStorage).setItem("ameristar-admin", blob);
+  $("liveTeam").href = pagesBase(S.teamRepo); $("liveMap").href = pagesBase(S.mapRepo);
+}
+
+// =====================================================================
+// GITHUB API
+// =====================================================================
+async function gh(method, path, body) {
+  const r = await fetch("https://api.github.com" + path, {
+    method, headers: { Authorization: "Bearer " + S.token, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (r.status === 404 && method === "GET") return null;
+  const j = r.status === 204 ? {} : await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.message || (r.status + " " + r.statusText)); e.status = r.status; throw e; }
+  return j;
+}
+const contentsPath = (repo, p) => `/repos/${S.owner}/${repo}/contents/${p}?ref=${encodeURIComponent(S.branch)}`;
+const b64utf8 = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+const utf8b64 = (b) => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
+
+async function readJson(repo, p) {
+  const f = await gh("GET", contentsPath(repo, p));
+  if (!f) return null;
+  return { data: JSON.parse(utf8b64(f.content)), sha: f.sha };
+}
+async function listDir(repo, dir) {
+  const arr = await gh("GET", contentsPath(repo, dir));
+  const m = new Map();
+  (arr || []).forEach(f => { if (f.type === "file") m.set(f.name, f.sha); });
+  return m;
+}
+async function putFile(repo, p, b64, message, sha) {
+  const body = { message, content: b64, branch: S.branch };
+  if (sha) body.sha = sha;
+  try {
+    return await gh("PUT", `/repos/${S.owner}/${repo}/contents/${p}`, body);
+  } catch (e) {
+    if (e.status === 409 || e.status === 422) {            // sha out of date -> refetch and retry once
+      const cur = await gh("GET", contentsPath(repo, p));
+      if (cur && cur.sha !== sha) { body.sha = cur.sha; return await gh("PUT", `/repos/${S.owner}/${repo}/contents/${p}`, body); }
+    }
+    throw e;
+  }
+}
+
+// =====================================================================
+// CONNECT + LOAD
+// =====================================================================
+async function connect() {
+  saveSettings();
+  if (!S.token) { msg("connMsg", "Paste a token first.", "err"); return; }
+  setChip("connChip", "Connecting…", "");
+  try {
+    const me = await gh("GET", "/user");
+    log(`Authenticated as ${me.login}`);
+    await loadAll();
+    S.connected = true;
+    setChip("connChip", `Connected · ${me.login}`, "ok");
+    msg("connMsg", "Loaded.", "ok");
+    showTab(S.ui.tab === "settings" ? "team" : S.ui.tab);
+  } catch (e) {
+    S.connected = false;
+    setChip("connChip", "Connection failed", "err");
+    msg("connMsg", e.message, "err");
+    log("ERROR " + e.message);
+  }
+}
+async function loadAll() {
+  const [t, m, tf, mf] = await Promise.all([
+    readJson(S.teamRepo, "data/team.json"), readJson(S.mapRepo, "data/map.json"),
+    listDir(S.teamRepo, "images").catch(() => new Map()), listDir(S.mapRepo, "photos").catch(() => new Map())
+  ]);
+  if (!t) throw new Error(`data/team.json not found in ${S.owner}/${S.teamRepo} — upload the repo files first.`);
+  if (!m) throw new Error(`data/map.json not found in ${S.owner}/${S.mapRepo} — commit the refactored map first.`);
+  S.team = { data: t.data, sha: t.sha, dirty: false };
+  S.map  = { data: m.data, sha: m.sha, dirty: false };
+  S.teamFiles = tf; S.mapFiles = mf; S.uploads = []; S.previews = {};
+  log(`Loaded team.json (${S.team.data.teams.length} sections), map.json (${Object.keys(S.map.data.states).length} states, ${Object.keys(S.map.data.people).length} people), ${tf.size} team images, ${mf.size} map photos`);
+  S.ui.section = 0;
+  renderAll(); updatePending();
+}
+
+// =====================================================================
+// SAVE
+// =====================================================================
+async function saveAll() {
+  if (!S.connected) return;
+  $("btnSave").disabled = true; $("log").classList.add("show");
+  const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+  try {
+    // 1) photos first so the JSON never references a file that isn't there yet
+    for (const u of S.uploads) {
+      const files = u.repo === S.teamRepo ? S.teamFiles : S.mapFiles;
+      const name = u.path.split("/").pop();
+      log(`Uploading ${u.repo}/${u.path}…`);
+      const res = await putFile(u.repo, u.path, u.b64, `Headshot: ${name} (${stamp})`, files.get(name));
+      files.set(name, res.content.sha);
+    }
+    S.uploads = [];
+    // 2) data files
+    if (S.team.dirty) {
+      log("Committing data/team.json…");
+      const res = await putFile(S.teamRepo, "data/team.json", b64utf8(JSON.stringify(S.team.data, null, 2) + "\n"), `Team page update (${stamp})`, S.team.sha);
+      S.team.sha = res.content.sha; S.team.dirty = false;
+    }
+    if (S.map.dirty) {
+      log("Committing data/map.json…");
+      const res = await putFile(S.mapRepo, "data/map.json", b64utf8(JSON.stringify(S.map.data, null, 2) + "\n"), `Territory map update (${stamp})`, S.map.sha);
+      S.map.sha = res.content.sha; S.map.dirty = false;
+    }
+    log("✔ Saved. GitHub Pages republishes in about a minute (hard-refresh the live page to see it).");
+    setChip("connChip", "Saved ✔", "ok");
+    setTimeout(() => setChip("connChip", "Connected", "ok"), 4000);
+  } catch (e) {
+    log("ERROR " + e.message + " — nothing else was changed. Fix and Save again.");
+    alert("Save failed: " + e.message);
+  }
+  updatePending(); renderAll();
+}
+function updatePending() {
+  const n = S.uploads.length + (S.team.dirty ? 1 : 0) + (S.map.dirty ? 1 : 0);
+  $("pendingBadge").style.display = n ? "" : "none"; $("pendingBadge").textContent = n;
+  $("btnSave").disabled = !S.connected || n === 0;
+}
+function markTeam() { S.team.dirty = true; updatePending(); }
+function markMap()  { S.map.dirty = true; updatePending(); }
+
+// =====================================================================
+// PHOTO UPLOAD (crop to 457x687, JPEG) -> queued for both repos
+// =====================================================================
+let cropCtx = null;
+function pickPhoto(personName, onDone) {
+  const inp = $("fileInput");
+  inp.value = "";
+  inp.onchange = () => {
+    const f = inp.files[0]; if (!f) return;
+    const img = new Image();
+    img.onload = () => openCrop(img, slug(personName) + ".jpg", onDone);
+    img.onerror = () => alert("Couldn't read that image.");
+    img.src = URL.createObjectURL(f);
+  };
+  inp.click();
+}
+function openCrop(img, filename, onDone) {
+  const cv = $("cropCanvas"), ctx = cv.getContext("2d");
+  const W = 457, H = 687, scale = Math.max(W / img.width, H / img.height);
+  const dw = img.width * scale, dh = img.height * scale;
+  const draw = () => {
+    const y = parseInt($("cropY").value, 10) / 100;           // 0 = top, 1 = bottom
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(img, (W - dw) / 2, -(dh - H) * y, dw, dh);
+  };
+  $("cropY").value = 15; $("cropY").oninput = draw; draw();
+  $("cropName").textContent = filename;
+  $("cropOverlay").classList.add("show");
+  $("cropCancel").onclick = () => $("cropOverlay").classList.remove("show");
+  $("cropOk").onclick = () => {
+    const dataUrl = cv.toDataURL("image/jpeg", 0.86);
+    const b64 = dataUrl.split(",")[1];
+    queueUpload(filename, b64, dataUrl);
+    $("cropOverlay").classList.remove("show");
+    onDone(filename);
+  };
+}
+function queueUpload(filename, b64, preview) {
+  const targets = S.sync ? [[S.teamRepo, "images/"], [S.mapRepo, "photos/"]]
+                         : (S.ui.tab === "map" ? [[S.mapRepo, "photos/"]] : [[S.teamRepo, "images/"]]);
+  S.uploads = S.uploads.filter(u => u.path.split("/").pop() !== filename);
+  targets.forEach(([repo, dir]) => S.uploads.push({ repo, path: dir + filename, b64, preview }));
+  S.previews[filename] = preview;
+  updatePending();
+}
+// After a photo is assigned to a person, also point the same-named person in the other data set at it.
+function syncPhotoRef(name, filename, from) {
+  if (!S.sync) return;
+  if (from === "team") {
+    if (S.map.data.people[name] && S.map.data.people[name].photo !== filename) { S.map.data.people[name].photo = filename; markMap(); }
+  } else {
+    let changed = false;
+    S.team.data.teams.forEach(t => t.people.forEach(p => { if (p.name === name && p.photo !== filename) { p.photo = filename; changed = true; } }));
+    if (changed) markTeam();
+  }
+}
+function thumbHtml(filename, repo) {
+  if (!filename) return '<div class="thumb"><div class="nophoto">no photo</div></div>';
+  if (S.previews[filename]) return `<div class="thumb"><img src="${S.previews[filename]}" alt=""></div>`;
+  const files = repo === S.teamRepo ? S.teamFiles : S.mapFiles;
+  const dir = repo === S.teamRepo ? "images/" : "photos/";
+  if (!files.has(filename)) return `<div class="thumb"><div class="nophoto">file missing:<br>${esc(filename)}</div></div>`;
+  return `<div class="thumb"><img src="${pagesBase(repo)}${dir}${encodeURIComponent(filename)}?v=${files.get(filename).slice(0, 7)}" alt="" onerror="this.parentNode.innerHTML='<div class=nophoto>not live yet</div>'"></div>`;
+}
+
+// =====================================================================
+// TEAM PAGE EDITOR
+// =====================================================================
+function renderTeam() {
+  const d = S.team.data; if (!d) return;
+  if (S.ui.section >= d.teams.length) S.ui.section = Math.max(0, d.teams.length - 1);
+  $("sectionList").innerHTML = d.teams.map((t, i) =>
+    `<li class="${i === S.ui.section ? "active" : ""}" data-i="${i}"><span class="grow">${esc(t.title)}</span><span class="cnt">${t.people.length}</span></li>`).join("");
+  $("sectionList").querySelectorAll("li").forEach(li => li.onclick = () => { S.ui.section = +li.dataset.i; renderTeam(); });
+  const t = d.teams[S.ui.section];
+  if (!t) { $("peopleGrid").innerHTML = ""; $("sectionTitle").value = ""; return; }
+  $("sectionTitle").value = t.title;
+  $("sectionTitle").oninput = (e) => { t.title = e.target.value; markTeam(); $("sectionList").children[S.ui.section].firstChild.textContent = t.title; };
+  $("peopleGrid").innerHTML = t.people.map((p, i) => {
+    const missing = p.photo && !S.teamFiles.has(p.photo) && !S.previews[p.photo];
+    return `<div class="person ${missing ? "missing" : ""}" data-i="${i}">
+      ${thumbHtml(p.photo, S.teamRepo)}
+      <div>
+        <input type="text" class="pname" value="${esc(p.name)}" placeholder="Name">
+        <input type="text" class="pregion" value="${esc(p.region || "")}" placeholder="Region / label under name (optional)">
+        <div class="actions">
+          <button class="sm photo">Photo…</button>
+          <button class="sm up" ${i === 0 ? "disabled" : ""}>↑</button>
+          <button class="sm down" ${i === t.people.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="sm danger del">Remove</button>
+        </div>
+      </div></div>`;
+  }).join("");
+  $("peopleGrid").querySelectorAll(".person").forEach(card => {
+    const i = +card.dataset.i, p = t.people[i];
+    card.querySelector(".pname").oninput = (e) => { p.name = e.target.value; markTeam(); };
+    card.querySelector(".pregion").oninput = (e) => { p.region = e.target.value; if (!p.region) delete p.region; markTeam(); };
+    card.querySelector(".photo").onclick = () => pickPhoto(p.name || "person", (fn) => { p.photo = fn; markTeam(); syncPhotoRef(p.name, fn, "team"); renderTeam(); });
+    card.querySelector(".up").onclick = () => { [t.people[i - 1], t.people[i]] = [t.people[i], t.people[i - 1]]; markTeam(); renderTeam(); };
+    card.querySelector(".down").onclick = () => { [t.people[i + 1], t.people[i]] = [t.people[i], t.people[i + 1]]; markTeam(); renderTeam(); };
+    card.querySelector(".del").onclick = () => { if (confirm(`Remove ${p.name} from "${t.title}"?`)) { t.people.splice(i, 1); markTeam(); renderTeam(); } };
+  });
+}
+$("btnAddPerson").onclick = () => {
+  const t = S.team.data.teams[S.ui.section]; if (!t) return;
+  const name = prompt("Person's name:"); if (!name) return;
+  t.people.push({ name: name.trim(), photo: slug(name) + ".jpg" });
+  markTeam(); renderTeam();
+};
+$("btnAddSection").onclick = () => {
+  const title = prompt("Section title:"); if (!title) return;
+  S.team.data.teams.push({ slug: slug(title), title: title.trim(), people: [] });
+  S.ui.section = S.team.data.teams.length - 1; markTeam(); renderTeam();
+};
+$("btnDelSection").onclick = () => {
+  const t = S.team.data.teams[S.ui.section]; if (!t) return;
+  if (confirm(`Delete the whole "${t.title}" section (${t.people.length} people)?`)) { S.team.data.teams.splice(S.ui.section, 1); markTeam(); renderTeam(); }
+};
+$("btnSecUp").onclick = () => { const a = S.team.data.teams, i = S.ui.section; if (i > 0) { [a[i - 1], a[i]] = [a[i], a[i - 1]]; S.ui.section--; markTeam(); renderTeam(); } };
+$("btnSecDown").onclick = () => { const a = S.team.data.teams, i = S.ui.section; if (i < a.length - 1) { [a[i + 1], a[i]] = [a[i], a[i + 1]]; S.ui.section++; markTeam(); renderTeam(); } };
+
+// =====================================================================
+// TAG EDITOR (names list with autocomplete)
+// =====================================================================
+function tagEditor(container, list, options, onChange) {
+  const known = new Set(options);
+  const draw = () => {
+    container.innerHTML = list.map((n, i) => `<span class="tag ${known.has(n) || n === "Open" ? "" : "unknown"}" title="${known.has(n) || n === "Open" ? "" : "Not in People list"}">${esc(n)}<b data-i="${i}">×</b></span>`).join("") +
+      `<input type="text" list="peopleList" placeholder="${list.length ? "" : "Add name…"}">`;
+    container.querySelectorAll("b").forEach(b => b.onclick = () => { list.splice(+b.dataset.i, 1); onChange(); draw(); });
+    const inp = container.querySelector("input");
+    const commit = () => { const v = inp.value.trim().replace(/,$/, ""); if (v && !list.includes(v)) { list.push(v); onChange(); } draw(); container.querySelector("input").focus(); };
+    inp.onkeydown = (e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); commit(); } else if (e.key === "Backspace" && !inp.value && list.length) { list.pop(); onChange(); draw(); } };
+    inp.onchange = () => { if (inp.value.trim()) commit(); };
+    inp.onblur = () => { if (inp.value.trim()) commit(); };
+  };
+  draw();
+}
+function refreshDatalist() {
+  let dl = $("peopleList");
+  if (!dl) { dl = document.createElement("datalist"); dl.id = "peopleList"; document.body.appendChild(dl); }
+  dl.innerHTML = Object.keys(S.map.data.people).sort().map(n => `<option value="${esc(n)}">`).join("") + '<option value="Open">';
+}
+
+// =====================================================================
+// MAP: STATES
+// =====================================================================
+function renderStates() {
+  const d = S.map.data; if (!d) return;
+  refreshDatalist();
+  const people = Object.keys(d.people).sort();
+  const terrs = Object.keys(d.territories);
+  const filter = $("stateFilter").value.toLowerCase();
+  const byTerr = {};
+  Object.entries(d.states).forEach(([s, v]) => { (byTerr[v.territory] ||= []).push(s); });
+  const tbody = $("statesTable").querySelector("tbody");
+  let html = "";
+  terrs.concat(Object.keys(byTerr).filter(t => !terrs.includes(t))).forEach(t => {
+    const states = (byTerr[t] || []).sort().filter(s => !filter || s.toLowerCase().includes(filter) || t.toLowerCase().includes(filter));
+    if (!states.length) return;
+    html += `<tr class="territory-head"><td colspan="4">${esc(t)} <span class="hint" style="display:inline">· ${states.length} ${states.length === 1 ? "state" : "states"}</span></td></tr>`;
+    states.forEach(s => {
+      const v = d.states[s];
+      html += `<tr data-s="${esc(s)}"><td><b>${esc(s)}</b></td>
+        <td><select class="terr">${terrs.map(x => `<option ${x === v.territory ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
+        <td><div class="tags mds"></div></td>
+        <td><select class="pm"><option value="">— none —</option>${people.map(x => `<option ${x === v.pm ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></td></tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+  tbody.querySelectorAll("tr[data-s]").forEach(tr => {
+    const v = d.states[tr.dataset.s];
+    tr.querySelector(".terr").onchange = (e) => { v.territory = e.target.value; markMap(); renderStates(); };
+    tr.querySelector(".pm").onchange = (e) => { v.pm = e.target.value; markMap(); };
+    v.mds = v.mds || [];
+    tagEditor(tr.querySelector(".mds"), v.mds, people, markMap);
+  });
+}
+$("stateFilter").oninput = renderStates;
+
+// =====================================================================
+// MAP: TERRITORIES
+// =====================================================================
+function renderTerritories() {
+  const d = S.map.data; if (!d) return;
+  refreshDatalist();
+  const people = Object.keys(d.people).sort();
+  $("mapPhone").value = d.phone || ""; $("mapPhone").oninput = (e) => { d.phone = e.target.value; markMap(); };
+  $("terrGrid").innerHTML = Object.entries(d.territories).map(([name, t]) => `
+    <div class="terr" data-t="${esc(name)}" style="border-top-color:${esc(t.color)}">
+      <div class="row" style="align-items:center;margin-bottom:10px"><h3 style="margin:0" class="grow">${esc(name)}</h3><input type="color" class="color" value="${esc(t.color)}" title="Map color"></div>
+      <div class="field"><label>Distribution Channel Manager</label><select class="dcm"><option value="">— none —</option>${people.map(x => `<option ${x === t.dcm ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></div>
+      <div class="field"><label>Market Developers (territory roster)</label><div class="tags mds"></div><div class="hint">Shown for states with no MD of their own.</div></div>
+      <div class="field"><label>Territory Sales</label><div class="tags ts"></div></div>
+      <div class="field" style="margin:0"><label>Email</label><input type="email" class="email" value="${esc(t.email || "")}"></div>
+    </div>`).join("");
+  $("terrGrid").querySelectorAll(".terr").forEach(card => {
+    const t = d.territories[card.dataset.t];
+    card.querySelector(".color").oninput = (e) => { t.color = e.target.value; card.style.borderTopColor = t.color; markMap(); };
+    card.querySelector(".dcm").onchange = (e) => { t.dcm = e.target.value; markMap(); };
+    card.querySelector(".email").oninput = (e) => { t.email = e.target.value; markMap(); };
+    t.mds = t.mds || []; t.ts = t.ts || [];
+    tagEditor(card.querySelector(".mds"), t.mds, people, markMap);
+    tagEditor(card.querySelector(".ts"), t.ts, [], markMap);   // TS names aren't photo people; free text
+  });
+}
+
+// =====================================================================
+// MAP: PEOPLE & PHOTOS
+// =====================================================================
+function renamePerson(oldName, newName) {
+  const d = S.map.data;
+  if (!newName || newName === oldName || d.people[newName]) return false;
+  d.people[newName] = d.people[oldName]; delete d.people[oldName];
+  Object.values(d.states).forEach(v => { if (v.pm === oldName) v.pm = newName; v.mds = (v.mds || []).map(n => n === oldName ? newName : n); });
+  Object.values(d.territories).forEach(t => { if (t.dcm === oldName) t.dcm = newName; t.mds = (t.mds || []).map(n => n === oldName ? newName : n); t.ts = (t.ts || []).map(n => n === oldName ? newName : n); });
+  return true;
+}
+function referencesOf(name) {
+  const d = S.map.data, r = [];
+  Object.entries(d.states).forEach(([s, v]) => { if (v.pm === name) r.push(s + " (PM)"); if ((v.mds || []).includes(name)) r.push(s + " (MD)"); });
+  Object.entries(d.territories).forEach(([t, v]) => { if (v.dcm === name) r.push(t + " (DCM)"); if ((v.mds || []).includes(name)) r.push(t + " roster"); });
+  return r;
+}
+function renderMapPeople() {
+  const d = S.map.data; if (!d) return;
+  const names = Object.keys(d.people).sort();
+  $("mapPeople").innerHTML = names.map(n => {
+    const p = d.people[n], refs = referencesOf(n);
+    const missing = p.photo && !S.mapFiles.has(p.photo) && !S.previews[p.photo];
+    return `<div class="person ${missing ? "missing" : ""}" data-n="${esc(n)}">
+      ${thumbHtml(p.photo, S.mapRepo)}
+      <div>
+        <input type="text" class="pname" value="${esc(n)}">
+        <input type="text" class="prole" value="${esc(p.role || "")}" placeholder="Role caption (PMs only, e.g. High Security)">
+        <div class="hint" style="margin-bottom:6px">${refs.length ? "Used in: " + esc(refs.slice(0, 4).join(", ")) + (refs.length > 4 ? ` +${refs.length - 4}` : "") : "Not assigned anywhere"}</div>
+        <div class="actions"><button class="sm photo">Photo…</button><button class="sm danger del">Remove</button></div>
+      </div></div>`;
+  }).join("");
+  $("mapPeople").querySelectorAll(".person").forEach(card => {
+    const n = card.dataset.n, p = d.people[n];
+    card.querySelector(".pname").onchange = (e) => { if (renamePerson(n, e.target.value.trim())) { markMap(); renderMapPeople(); } else { e.target.value = n; } };
+    card.querySelector(".prole").oninput = (e) => { p.role = e.target.value; if (!p.role) delete p.role; markMap(); };
+    card.querySelector(".photo").onclick = () => pickPhoto(n, (fn) => { p.photo = fn; markMap(); syncPhotoRef(n, fn, "map"); renderMapPeople(); });
+    card.querySelector(".del").onclick = () => {
+      const refs = referencesOf(n);
+      if (!confirm(`Remove ${n} from the map?${refs.length ? "\n\nThey are still assigned to: " + refs.join(", ") + "\nThose will be cleared." : ""}`)) return;
+      delete d.people[n];
+      Object.values(d.states).forEach(v => { if (v.pm === n) v.pm = ""; v.mds = (v.mds || []).filter(x => x !== n); });
+      Object.values(d.territories).forEach(t => { if (t.dcm === n) t.dcm = ""; t.mds = (t.mds || []).filter(x => x !== n); });
+      markMap(); renderMapPeople();
+    };
+  });
+  // Names referenced in states/territories that have no People entry
+  const known = new Set(names), orphans = new Set();
+  Object.values(d.states).forEach(v => { if (v.pm && !known.has(v.pm)) orphans.add(v.pm); (v.mds || []).forEach(x => { if (!known.has(x) && x !== "Open") orphans.add(x); }); });
+  Object.values(d.territories).forEach(t => { if (t.dcm && !known.has(t.dcm)) orphans.add(t.dcm); (t.mds || []).forEach(x => { if (!known.has(x) && x !== "Open") orphans.add(x); }); });
+  $("orphans").innerHTML = orphans.size ? `<span class="warn">Referenced but not in People (will show initials, no photo): ${esc([...orphans].join(", "))}</span>` : "";
+}
+$("btnAddMapPerson").onclick = () => {
+  const name = prompt("Person's name:"); if (!name) return;
+  const n = name.trim(); if (S.map.data.people[n]) { alert("Already exists."); return; }
+  S.map.data.people[n] = { photo: slug(n) + ".jpg" };
+  markMap(); renderMapPeople();
+};
+
+// =====================================================================
+// NAVIGATION + MISC
+// =====================================================================
+function renderAll() { renderTeam(); renderStates(); renderTerritories(); renderMapPeople(); }
+function showTab(tab) {
+  S.ui.tab = tab;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + tab));
+}
+function showSub(sub) {
+  S.ui.sub = sub;
+  document.querySelectorAll(".subtabs button").forEach(b => b.classList.toggle("active", b.dataset.sub === sub));
+  ["states", "territories", "mpeople"].forEach(s => $("sub-" + s).style.display = s === sub ? "" : "none");
+  ({ states: renderStates, territories: renderTerritories, mpeople: renderMapPeople })[sub]();
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+document.querySelectorAll(".subtabs button").forEach(b => b.onclick = () => showSub(b.dataset.sub));
+function setChip(id, text, cls) { const el = $(id); el.textContent = text; el.className = "chip " + cls; }
+function msg(id, text, cls) { const el = $(id); el.textContent = text; el.className = "hint " + cls; }
+function log(line) { const el = $("log"); el.classList.add("show"); el.textContent += (el.textContent ? "\n" : "") + line; el.scrollTop = el.scrollHeight; }
+
+$("btnConnect").onclick = connect;
+$("btnSave").onclick = saveAll;
+$("btnReload").onclick = async () => {
+  if (!S.connected) { showTab("settings"); return; }
+  const n = S.uploads.length + (S.team.dirty ? 1 : 0) + (S.map.dirty ? 1 : 0);
+  if (n && !confirm("Discard unsaved changes and reload from GitHub?")) return;
+  try { await loadAll(); log("Reloaded."); } catch (e) { log("ERROR " + e.message); }
+};
+$("syncPhotos").onchange = () => { S.sync = $("syncPhotos").checked; saveSettings(); };
+window.addEventListener("beforeunload", (e) => { if (S.uploads.length || S.team.dirty || S.map.dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+loadSettings();
+if (S.token) connect(); else showTab("settings");
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!-- ============================================================
+  Find Your Team - AEM Group Embed snippet
+  Paste into the AEM embed/HTML component.
+
+  For a single section, add ?team=<slug> to the src:
+    market-developer-east | market-developer-west | dcm |
+    inside-sales-east | inside-sales-west | project-managers | security
+============================================================ -->
+<iframe
+  class="ameristar-team-frame"
+  src="https://ameristarwebdev.github.io/find-your-team/"
+  title="Find Your Team"
+  style="width:100%; border:0; display:block; height:600px;"
+  scrolling="no"
+  loading="lazy"></iframe>
+
+<script>
+(function () {
+  // Attach once per page, even if this snippet is pasted multiple times
+  if (window.__ameristarTeamResize) return;
+  window.__ameristarTeamResize = true;
+
+  window.addEventListener("message", function (e) {
+    if (e.origin !== "https://ameristarwebdev.github.io") return;
+    if (!e.data || e.data.type !== "ameristar-team-height") return;
+
+    // Resize whichever team iframe sent the message
+    var frames = document.querySelectorAll("iframe.ameristar-team-frame");
+    for (var i = 0; i < frames.length; i++) {
+      if (frames[i].contentWindow === e.source) {
+        frames[i].style.height = e.data.height + "px";
+        break;
+      }
+    }
+  });
+})();
+</script>
